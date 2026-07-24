@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Integration - Codespace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">⌨️ Codespace</a>
+            <div class="nav-links">
+                <a href="/dashboard.html">Dashboard</a>
+                <a href="/workspace.html">Workspace</a>
+                <a href="/github.html" class="active">GitHub</a>
+                <a href="/settings.html">Settings</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="github-container">
+        <div class="github-header">
+            <h1>🐙 GitHub Integration</h1>
+            <p>Connect, import, and manage your GitHub repositories</p>
+        </div>
+
+        <div class="github-grid">
+            <!-- Connect Card -->
+            <div class="github-card">
+                <div class="github-card-icon">🔗</div>
+                <h3>Connect GitHub</h3>
+                <p>Link your GitHub account to access repositories</p>
+                <button class="btn-primary" onclick="connectGithub()">Connect Account</button>
+            </div>
+
+            <!-- Import Card -->
+            <div class="github-card">
+                <div class="github-card-icon">📥</div>
+                <h3>Import Repository</h3>
+                <p>Clone a GitHub repo into your workspace</p>
+                <input type="text" id="repoUrl" placeholder="https://github.com/user/repo" class="github-input">
+                <button class="btn-primary" onclick="importRepo()">Import</button>
+            </div>
+
+            <!-- Export Card -->
+            <div class="github-card">
+                <div class="github-card-icon">📤</div>
+                <h3>Export to GitHub</h3>
+                <p>Push your workspace to a new GitHub repo</p>
+                <input type="text" id="repoName" placeholder="New repository name" class="github-input">
+                <button class="btn-primary" onclick="exportRepo()">Export</button>
+            </div>
+
+            <!-- Create Card -->
+            <div class="github-card">
+                <div class="github-card-icon">✨</div>
+                <h3>Create Repository</h3>
+                <p>Create a new GitHub repository</p>
+                <input type="text" id="newRepoName" placeholder="Repository name" class="github-input">
+                <input type="text" id="newRepoDesc" placeholder="Description (optional)" class="github-input">
+                <button class="btn-primary" onclick="createRepo()">Create</button>
+            </div>
+        </div>
+
+        <!-- Repository List -->
+        <div class="repo-section">
+            <h3>Your Repositories</h3>
+            <div id="repoList" class="repo-list">
+                <p class="loading">Loading repositories...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script src="github.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRepositories();
+        });
+
+        async function loadRepositories() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/github/repos', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                const list = document.getElementById('repoList');
+                if (data.success && data.repos.length > 0) {
+                    list.innerHTML = data.repos.map(repo => `
+                        <div class="repo-item">
+                            <div class="repo-info">
+                                <span class="repo-name">📁 ${repo.name}</span>
+                                <span class="repo-desc">${repo.description || 'No description'}</span>
+                            </div>
+                            <div class="repo-actions">
+                                <span class="repo-stars">⭐ ${repo.stargazers_count || 0}</span>
+                                <button class="btn-sm" onclick="cloneRepo('${repo.clone_url}')">Clone</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p>No repositories found. Connect your GitHub account first.</p>';
+                }
+            } catch (error) {
+                document.getElementById('repoList').innerHTML = '<p class="error">Error loading repositories. Please connect your GitHub account.</p>';
+            }
+        }
+
+        async function connectGithub() {
+            window.open('/api/auth/github', '_blank');
+            setTimeout(() => loadRepositories(), 2000);
+        }
+
+        async function importRepo() {
+            const url = document.getElementById('repoUrl').value;
+            if (!url) {
+                alert('Please enter a repository URL');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/github/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ repoUrl: url })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert(`Repository imported successfully! Project: ${data.project.name}`);
+                    window.location.href = `/workspace.html?project=${data.project._id}`;
+                } else {
+                    alert('Import failed: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error importing repository');
+            }
+        }
+
+        async function exportRepo() {
+            const name = document.getElementById('repoName').value;
+            if (!name) {
+                alert('Please enter a repository name');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/github/export', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ repoName: name })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert(`Repository exported successfully!\nURL: ${data.repoUrl}`);
+                    loadRepositories();
+                } else {
+                    alert('Export failed: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error exporting repository');
+            }
+        }
+
+        async function createRepo() {
+            const name = document.getElementById('newRepoName').value;
+            const desc = document.getElementById('newRepoDesc').value;
+            
+            if (!name) {
+                alert('Please enter a repository name');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/github/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, description: desc })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert(`Repository created successfully!\nURL: ${data.repoUrl}`);
+                    loadRepositories();
+                } else {
+                    alert('Creation failed: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error creating repository');
+            }
+        }
+
+        async function cloneRepo(repoUrl) {
+            document.getElementById('repoUrl').value = repoUrl;
+            importRepo();
+        }
+    </script>
+</body>
+  </html>
