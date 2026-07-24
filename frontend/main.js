@@ -1,6 +1,5 @@
-// Main application entry point
-
-const API_URL = 'https://codespace-backend.onrender.com/api';
+// Use relative URL since both are on same domain
+const API_URL = '/api';  // Changed from https://codespace-backend.onrender.com/api
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
