@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Codespace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">⌨️ Codespace</a>
+            <div class="nav-links">
+                <a href="/dashboard.html" class="active">Dashboard</a>
+                <a href="/workspace.html">Workspace</a>
+                <a href="/settings.html">Settings</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="dashboard-sidebar">
+            <button class="btn-primary btn-block" onclick="createWorkspace()">+ New Workspace</button>
+            <div class="sidebar-menu">
+                <div class="menu-item active">Recent</div>
+                <div class="menu-item">Starred</div>
+                <div class="menu-item">Templates</div>
+            </div>
+            <div class="storage-info">
+                <span>Storage</span>
+                <div class="storage-bar">
+                    <div class="storage-progress" id="storageProgress" style="width: 0%"></div>
+                </div>
+                <span class="storage-text" id="storageText">0 MB / 1 GB</span>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="welcome-section">
+                <h2>Welcome back, <span id="userDisplay">User</span> 👋</h2>
+                <p>Create a new workspace or continue where you left off</p>
+            </div>
+
+            <div class="project-grid" id="projectGrid">
+                <!-- Projects loaded from API -->
+            </div>
+
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <button onclick="importFromGitHub()">📥 Import from GitHub</button>
+                    <button onclick="uploadZip()">📦 Upload ZIP</button>
+                    <button onclick="createTemplate()">📋 Create from Template</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="main.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
