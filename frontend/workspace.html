@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace - Codespace</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="workspace.css">
+</head>
+<body class="workspace-body">
+    <div class="workspace-container">
+        <!-- Header -->
+        <header class="workspace-header">
+            <div class="header-left">
+                <button class="menu-toggle">☰</button>
+                <span class="workspace-title" id="workspaceTitle">My Workspace</span>
+            </div>
+            <div class="header-right">
+                <button onclick="toggleTerminal()">🖥️</button>
+                <button onclick="showDeploy()">🚀</button>
+                <button onclick="openAI()">🤖</button>
+                <button onclick="togglePreview()">👁️</button>
+                <span class="workspace-status" id="workspaceStatus">● Running</span>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <div class="workspace-main">
+            <!-- Sidebar -->
+            <aside class="workspace-sidebar">
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="explorer">📂</button>
+                    <button class="tab-btn" data-tab="search">🔍</button>
+                    <button class="tab-btn" data-tab="git">🔀</button>
+                </div>
+                <div class="sidebar-content">
+                    <div id="explorer" class="tab-content active">
+                        <div class="explorer-header">
+                            <span>EXPLORER</span>
+                            <button onclick="newFile()">+</button>
+                        </div>
+                        <div class="explorer-tree" id="fileTree">
+                            <!-- Files loaded from API -->
+                        </div>
+                    </div>
+                    <div id="search" class="tab-content">
+                        <input type="text" placeholder="Search files..." id="searchInput">
+                    </div>
+                    <div id="git" class="tab-content">
+                        <button class="btn-sm" onclick="gitCommit()">Commit</button>
+                        <button class="btn-sm" onclick="gitPush()">Push</button>
+                        <button class="btn-sm" onclick="gitPull()">Pull</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Editor -->
+            <div class="workspace-editor">
+                <div class="editor-tabs" id="editorTabs">
+                    <div class="tab active">README.md</div>
+                    <button class="tab-add" onclick="newFile()">+</button>
+                </div>
+                <div class="editor-container">
+                    <div class="editor-content" id="codeEditor">
+                        <div class="line-numbers" id="lineNumbers">1</div>
+                        <pre class="code"><code id="editorCode"># Welcome to Codespace
+
+Start coding in your browser!</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="workspace-preview" id="previewPanel" style="display:none;">
+                <div class="preview-header">
+                    <span>Preview</span>
+                    <button onclick="togglePreview()">✕</button>
+                </div>
+                <div class="preview-frame">
+                    <iframe id="previewFrame" src="about:blank"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal -->
+        <div class="workspace-terminal" id="terminal">
+            <div class="terminal-header">
+                <span>TERMINAL</span>
+                <button onclick="toggleTerminal()">✕</button>
+            </div>
+            <div class="terminal-content" id="terminalOutput">
+                <span>Terminal ready. Type your commands below.</span>
+            </div>
+            <div class="terminal-input">
+                <span class="prompt">$</span>
+                <input type="text" id="terminalInput" placeholder="Enter command..." onkeydown="terminalCommand(event)">
+            </div>
+        </div>
+    </div>
+
+    <script src="workspace.js"></script>
+    <script src="editor.js"></script>
+    <script src="terminal.js"></script>
+    <script src="explorer.js"></script>
+    <script src="deploy.js"></script>
+    <script src="ai.js"></script>
+</body>
+  </html>
