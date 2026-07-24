@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Codespace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">⌨️ Codespace</a>
+            <div class="nav-links">
+                <a href="/dashboard.html">Dashboard</a>
+                <a href="/workspace.html">Workspace</a>
+                <a href="/github.html">GitHub</a>
+                <a href="/settings.html">Settings</a>
+                <a href="/profile.html" class="active">Profile</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar-container">
+                <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&size=120" alt="Profile" class="profile-avatar">
+                <button class="avatar-edit-btn" onclick="changeAvatar()">📷</button>
+            </div>
+            <div class="profile-info">
+                <h1 id="profileUsername">Username</h1>
+                <p id="profileEmail">user@example.com</p>
+                <span class="profile-badge" id="profileBadge">Free</span>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Personal Information -->
+            <div class="profile-section">
+                <h3>👤 Personal Information</h3>
+                <div class="profile-field">
+                    <label>Username</label>
+                    <input type="text" id="editUsername" placeholder="Username">
+                </div>
+                <div class="profile-field">
+                    <label>Email</label>
+                    <input type="email" id="editEmail" placeholder="Email" disabled>
+                    <span class="field-hint">Email cannot be changed</span>
+                </div>
+                <div class="profile-field">
+                    <label>Full Name</label>
+                    <input type="text" id="editFullName" placeholder="Full name">
+                </div>
+                <div class="profile-field">
+                    <label>Bio</label>
+                    <textarea id="editBio" rows="3" placeholder="Tell us about yourself"></textarea>
+                </div>
+                <button class="btn-primary" onclick="updateProfile()">💾 Update Profile</button>
+            </div>
+
+            <!-- Account Stats -->
+            <div class="profile-section">
+                <h3>📊 Account Stats</h3>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statProjects">0</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statWorkspaces">0</span>
+                        <span class="stat-label">Workspaces</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statDeployments">0</span>
+                        <span class="stat-label">Deployments</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statFiles">0</span>
+                        <span class="stat-label">Files</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connected Accounts -->
+            <div class="profile-section">
+                <h3>🔗 Connected Accounts</h3>
+                <div class="connected-account">
+                    <span class="account-icon">🐙</span>
+                    <span class="account-name">GitHub</span>
+                    <span class="account-status" id="githubStatus">Not connected</span>
+                    <button class="btn-sm" onclick="connectGithub()">Connect</button>
+                </div>
+                <div class="connected-account">
+                    <span class="account-icon">🔴</span>
+                    <span class="account-name">Google</span>
+                    <span class="account-status" id="googleStatus">Not connected</span>
+                    <button class="btn-sm" onclick="connectGoogle()">Connect</button>
+                </div>
+                <div class="connected-account">
+                    <span class="account-icon">🐦</span>
+                    <span class="account-name">Twitter</span>
+                    <span class="account-status" id="twitterStatus">Not connected</span>
+                    <button class="btn-sm" onclick="connectTwitter()">Connect</button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="profile-section">
+                <h3>🔄 Recent Activity</h3>
+                <div id="recentActivity" class="activity-list">
+                    <div class="activity-item">
+                        <span class="activity-icon">📁</span>
+                        <span>Created project "My App"</span>
+                        <span class="activity-time">2 hours ago</span>
+                    </div>
+                    <div class="activity-item">
+                        <span class="activity-icon">🚀</span>
+                        <span>Deployed to Vercel</span>
+                        <span class="activity-time">5 hours ago</span>
+                    </div>
+                    <div class="activity-item">
+                        <span class="activity-icon">📝</span>
+                        <span>Updated README.md</span>
+                        <span class="activity-time">Yesterday</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="profile-section danger-zone">
+                <h3>⚠️ Danger Zone</h3>
+                <div class="danger-actions">
+                    <button class="btn-danger" onclick="deleteAccount()">🗑️ Delete Account</button>
+                    <button class="btn-danger" onclick="exportData()">📤 Export All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        const API_URL = '/api';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            loadStats();
+            loadActivity();
+        });
+
+        async function loadProfile() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('profileUsername').textContent = user.username;
+                    document.getElementById('profileEmail').textContent = user.email;
+                    document.getElementById('editUsername').value = user.username;
+                    document.getElementById('editEmail').value = user.email;
+                    document.getElementById('editFullName').value = user.fullName || '';
+                    document.getElementById('editBio').value = user.bio || '';
+                    
+                    if (user.avatar) {
+                        document.getElementById('profileAvatar').src = user.avatar;
+                    }
+                    
+                    // Check connected accounts
+                    if (user.githubId) {
+                        document.getElementById('githubStatus').textContent = '✅ Connected';
+                        document.getElementById('githubStatus').style.color = '#4caf50';
+                    }
+                    if (user.googleId) {
+                        document.getElementById('googleStatus').textContent = '✅ Connected';
+                        document.getElementById('googleStatus').style.color = '#4caf50';
+                    }
+                }
+            } catch (error) {
+                console.error('Load profile error:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/projects`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const projects = data.projects || [];
+                    document.getElementById('statProjects').textContent = projects.length;
+                    
+                    // Count files
+                    let fileCount = 0;
+                    for (const project of projects) {
+                        const filesRes = await fetch(`${API_URL}/projects/${project._id}/files`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const filesData = await filesRes.json();
+                        if (filesData.success) {
+                            fileCount += filesData.files.filter(f => f.type === 'file').length;
+                        }
+                    }
+                    document.getElementById('statFiles').textContent = fileCount;
+                }
+            } catch (error) {
+                console.error('Load stats error:', error);
+            }
+        }
+
+        async function loadActivity() {
+            // Load recent activity from logs
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/logs/recent?limit=5`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.logs) {
+                    const activity = document.getElementById('recentActivity');
+                    activity.innerHTML = data.logs.map(log => `
+                        <div class="activity-item">
+                            <span class="activity-icon">${log.icon || '📌'}</span>
+                            <span>${log.message}</span>
+                            <span class="activity-time">${formatTime(log.timestamp)}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Load activity error:', error);
+            }
+        }
+
+        async function updateProfile() {
+            try {
+                const token = localStorage.getItem('token');
+                const username = document.getElementById('editUsername').value;
+                const fullName = document.getElementById('editFullName').value;
+                const bio = document.getElementById('editBio').value;
+                
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username, fullName, bio })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Profile updated successfully!');
+                    loadProfile();
+                } else {
+                    alert('Update failed: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error updating profile');
+            }
+        }
+
+        function changeAvatar() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        try {
+                            const token = localStorage.getItem('token');
+                            const response = await fetch(`${API_URL}/auth/avatar`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ avatar: event.target.result })
+                            });
+                            const data = await response.json();
+                            if (data.success) {
+                                document.getElementById('profileAvatar').src = data.avatar;
+                                alert('Avatar updated!');
+                            }
+                        } catch (error) {
+                            alert('Error updating avatar');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function connectGithub() {
+            window.open('/api/auth/github', '_blank');
+        }
+
+        function connectGoogle() {
+            window.open('/api/auth/google', '_blank');
+        }
+
+        function connectTwitter() {
+            alert('Twitter integration coming soon!');
+        }
+
+        function deleteAccount() {
+            if (confirm('⚠️ Are you sure you want to delete your account? This action cannot be undone!')) {
+                if (confirm('Really? All your projects, workspaces, and data will be permanently deleted.')) {
+                    alert('Account deletion request submitted. You will receive a confirmation email.');
+                }
+            }
+        }
+
+        function exportData() {
+            alert('Data export will be available soon as a ZIP download.');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+            return date.toLocaleDateString();
+        }
+    </script>
+</body>
+                      </html>
