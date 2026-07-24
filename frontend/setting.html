@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Codespace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">⌨️ Codespace</a>
+            <div class="nav-links">
+                <a href="/dashboard.html">Dashboard</a>
+                <a href="/workspace.html">Workspace</a>
+                <a href="/github.html">GitHub</a>
+                <a href="/settings.html" class="active">Settings</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="settings-container">
+        <h1>⚙️ Settings</h1>
+        
+        <div class="settings-grid">
+            <!-- Appearance -->
+            <div class="settings-section">
+                <h3>🎨 Appearance</h3>
+                <div class="setting-item">
+                    <label>Theme</label>
+                    <div class="theme-options">
+                        <button class="theme-btn" onclick="setTheme('dark')">🌙 Dark</button>
+                        <button class="theme-btn" onclick="setTheme('light')">☀️ Light</button>
+                        <button class="theme-btn" onclick="setTheme('system')">🖥️ System</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Font Size</label>
+                    <select id="fontSize" onchange="changeFontSize(this.value)">
+                        <option value="12">Small (12px)</option>
+                        <option value="13" selected>Medium (13px)</option>
+                        <option value="14">Large (14px)</option>
+                        <option value="16">Extra Large (16px)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Editor Font</label>
+                    <select id="editorFont" onchange="changeEditorFont(this.value)">
+                        <option value="Consolas">Consolas</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Fira Code">Fira Code</option>
+                        <option value="Monaco">Monaco</option>
+                        <option value="JetBrains Mono">JetBrains Mono</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Editor -->
+            <div class="settings-section">
+                <h3>📝 Editor Settings</h3>
+                <div class="setting-item">
+                    <label>Auto Save</label>
+                    <input type="checkbox" id="autoSave" checked onchange="toggleAutoSave(this.checked)">
+                    <span class="setting-desc">Automatically save files</span>
+                </div>
+                <div class="setting-item">
+                    <label>Show Minimap</label>
+                    <input type="checkbox" id="showMinimap" checked onchange="toggleMinimap(this.checked)">
+                    <span class="setting-desc">Display code minimap</span>
+                </div>
+                <div class="setting-item">
+                    <label>Line Numbers</label>
+                    <input type="checkbox" id="showLineNumbers" checked onchange="toggleLineNumbers(this.checked)">
+                    <span class="setting-desc">Show line numbers in editor</span>
+                </div>
+                <div class="setting-item">
+                    <label>Word Wrap</label>
+                    <input type="checkbox" id="wordWrap" onchange="toggleWordWrap(this.checked)">
+                    <span class="setting-desc">Wrap long lines</span>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="settings-section">
+                <h3>🖥️ Terminal Settings</h3>
+                <div class="setting-item">
+                    <label>Default Shell</label>
+                    <select id="defaultShell" onchange="changeShell(this.value)">
+                        <option value="bash">Bash</option>
+                        <option value="zsh">Zsh</option>
+                        <option value="sh">Sh</option>
+                        <option value="cmd">CMD</option>
+                        <option value="powershell">PowerShell</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Terminal Theme</label>
+                    <select id="terminalTheme" onchange="changeTerminalTheme(this.value)">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                        <option value="green">Green (Hacker)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Font Size</label>
+                    <input type="number" id="terminalFontSize" value="13" min="10" max="20" onchange="changeTerminalFontSize(this.value)">
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div class="settings-section">
+                <h3>🔒 Security</h3>
+                <div class="setting-item">
+                    <label>Change Password</label>
+                    <div class="password-change">
+                        <input type="password" id="currentPassword" placeholder="Current password">
+                        <input type="password" id="newPassword" placeholder="New password">
+                        <input type="password" id="confirmNewPassword" placeholder="Confirm new password">
+                        <button class="btn-primary" onclick="changePassword()">Update Password</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Two-Factor Authentication</label>
+                    <button class="btn-secondary" onclick="setup2FA()">Setup 2FA</button>
+                    <span class="setting-desc">Add an extra layer of security</span>
+                </div>
+                <div class="setting-item">
+                    <label>Active Sessions</label>
+                    <button class="btn-secondary" onclick="viewSessions()">View Sessions</button>
+                </div>
+            </div>
+
+            <!-- Storage -->
+            <div class="settings-section">
+                <h3>💾 Storage</h3>
+                <div class="setting-item">
+                    <div class="storage-info-settings">
+                        <span>Used: <strong id="storageUsed">0 MB</strong></span>
+                        <span>Total: <strong id="storageTotal">1 GB</strong></span>
+                    </div>
+                    <div class="storage-bar-settings">
+                        <div class="storage-progress-settings" id="storageProgressSettings" style="width: 0%"></div>
+                    </div>
+                    <button class="btn-secondary" onclick="clearCache()">Clear Cache</button>
+                    <button class="btn-secondary" onclick="exportData()">Export All Data</button>
+                </div>
+            </div>
+
+            <!-- Preferences -->
+            <div class="settings-section">
+                <h3>📋 Preferences</h3>
+                <div class="setting-item">
+                    <label>Language</label>
+                    <select id="language" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="zh">中文</option>
+                        <option value="ja">日本語</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Notifications</label>
+                    <input type="checkbox" id="notifications" checked onchange="toggleNotifications(this.checked)">
+                    <span class="setting-desc">Enable notifications</span>
+                </div>
+                <div class="setting-item">
+                    <label>Auto-Update</label>
+                    <input type="checkbox" id="autoUpdate" checked onchange="toggleAutoUpdate(this.checked)">
+                    <span class="setting-desc">Automatically update workspaces</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-actions">
+            <button class="btn-primary" onclick="saveAllSettings()">💾 Save All Settings</button>
+            <button class="btn-secondary" onclick="resetSettings()">🔄 Reset to Default</button>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script src="theme.js"></script>
+    <script>
+        // Load saved settings
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadStorageInfo();
+        });
+
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('codespace-settings') || '{}');
+            
+            if (settings.theme) {
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.textContent.includes(settings.theme));
+                });
+            }
+            
+            if (settings.fontSize) {
+                document.getElementById('fontSize').value = settings.fontSize;
+            }
+            
+            if (settings.editorFont) {
+                document.getElementById('editorFont').value = settings.editorFont;
+            }
+            
+            if (settings.autoSave !== undefined) {
+                document.getElementById('autoSave').checked = settings.autoSave;
+            }
+            
+            if (settings.defaultShell) {
+                document.getElementById('defaultShell').value = settings.defaultShell;
+            }
+        }
+
+        async function loadStorageInfo() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/storage', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const usedMB = (data.usage / 1024 / 1024).toFixed(1);
+                    const totalMB = (data.limit / 1024 / 1024).toFixed(1);
+                    const percentage = (data.usage / data.limit) * 100;
+                    
+                    document.getElementById('storageUsed').textContent = usedMB + ' MB';
+                    document.getElementById('storageTotal').textContent = totalMB + ' MB';
+                    document.getElementById('storageProgressSettings').style.width = Math.min(percentage, 100) + '%';
+                }
+            } catch (error) {
+                console.error('Storage info error:', error);
+            }
+        }
+
+        // Theme
+        function setTheme(theme) {
+            const themeManager = getThemeManager();
+            if (theme === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                themeManager.setTheme(prefersDark ? 'dark' : 'light');
+            } else {
+                themeManager.setTheme(theme);
+            }
+            
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(theme));
+            });
+            
+            saveSetting('theme', theme);
+        }
+
+        // Font Size
+        function changeFontSize(size) {
+            document.body.style.fontSize = size + 'px';
+            document.querySelectorAll('.editor-container, .terminal-content, .code').forEach(el => {
+                el.style.fontSize = size + 'px';
+            });
+            saveSetting('fontSize', size);
+        }
+
+        // Editor Font
+        function changeEditorFont(font) {
+            document.querySelectorAll('.editor-container, .code, .terminal-content').forEach(el => {
+                el.style.fontFamily = font + ', monospace';
+            });
+            saveSetting('editorFont', font);
+        }
+
+        // Auto Save
+        function toggleAutoSave(enabled) {
+            saveSetting('autoSave', enabled);
+            if (enabled) {
+                console.log('Auto-save enabled');
+            } else {
+                console.log('Auto-save disabled');
+            }
+        }
+
+        // Terminal Shell
+        function changeShell(shell) {
+            saveSetting('defaultShell', shell);
+            // Send to backend
+            const ws = getWebSocket();
+            ws.send({ type: 'terminal:shell', shell });
+        }
+
+        // Password Change
+        async function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmNewPassword').value;
+            
+            if (!current || !newPass) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (newPass !== confirm) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (newPass.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Password changed successfully!');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                } else {
+                    alert('Failed to change password: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error changing password');
+            }
+        }
+
+        // 2FA Setup
+        async function setup2FA() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/auth/setup-2fa', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show QR code
+                    const modal = document.createElement('div');
+                    modal.className = 'modal-overlay';
+                    modal.innerHTML = `
+                        <div class="modal">
+                            <h3>🔐 Two-Factor Authentication</h3>
+                            <p>Scan this QR code with Google Authenticator</p>
+                            <img src="${data.qrCode}" alt="2FA QR Code">
+                            <p class="small">Secret: ${data.secret}</p>
+                            <input type="text" id="twoFactorCode" placeholder="Enter 6-digit code" maxlength="6">
+                            <button class="btn-primary" onclick="verify2FA('${data.secret}')">Verify</button>
+                            <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                }
+            } catch (error) {
+                alert('Error setting up 2FA');
+            }
+        }
+
+        async function verify2FA(secret) {
+            const token = document.getElementById('twoFactorCode').value;
+            if (!token || token.length !== 6) {
+                alert('Please enter a valid 6-digit code');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/verify-2fa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ secret, token })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('2FA enabled successfully!');
+                    document.querySelector('.modal-overlay').remove();
+                } else {
+                    alert('Invalid code. Please try again.');
+                }
+            } catch (error) {
+                alert('Error verifying 2FA');
+            }
+        }
+
+        // View Sessions
+        function viewSessions() {
+            alert('Active sessions will be displayed here');
+        }
+
+        // Clear Cache
+        function clearCache() {
+            if (confirm('Clear all cached data?')) {
+                localStorage.clear();
+                alert('Cache cleared. Page will reload.');
+                location.reload();
+            }
+        }
+
+        // Export Data
+        function exportData() {
+            alert('Data export will be available soon');
+        }
+
+        // Language
+        function changeLanguage(lang) {
+            saveSetting('language', lang);
+            alert('Language changed to ' + lang);
+        }
+
+        // Notifications
+        function toggleNotifications(enabled) {
+            saveSetting('notifications', enabled);
+        }
+
+        // Auto Update
+        function toggleAutoUpdate(enabled) {
+            saveSetting('autoUpdate', enabled);
+        }
+
+        // Save individual setting
+        function saveSetting(key, value) {
+            const settings = JSON.parse(localStorage.getItem('codespace-settings') || '{}');
+            settings[key] = value;
+            localStorage.setItem('codespace-settings', JSON.stringify(settings));
+        }
+
+        // Save all settings
+        function saveAllSettings() {
+            localStorage.setItem('codespace-settings', JSON.stringify({
+                theme: document.querySelector('.theme-btn.active')?.textContent.toLowerCase() || 'dark',
+                fontSize: document.getElementById('fontSize').value,
+                editorFont: document.getElementById('editorFont').value,
+                autoSave: document.getElementById('autoSave').checked,
+                showMinimap: document.getElementById('showMinimap').checked,
+                showLineNumbers: document.getElementById('showLineNumbers').checked,
+                wordWrap: document.getElementById('wordWrap').checked,
+                defaultShell: document.getElementById('defaultShell').value,
+                terminalTheme: document.getElementById('terminalTheme').value,
+                terminalFontSize: document.getElementById('terminalFontSize').value,
+                language: document.getElementById('language').value,
+                notifications: document.getElementById('notifications').checked,
+                autoUpdate: document.getElementById('autoUpdate').checked
+            }));
+            alert('All settings saved!');
+        }
+
+        // Reset settings
+        function resetSettings() {
+            if (confirm('Reset all settings to default?')) {
+                localStorage.removeItem('codespace-settings');
+                location.reload();
+            }
+        }
+
+        // Toggle minimap
+        function toggleMinimap(enabled) {
+            saveSetting('showMinimap', enabled);
+        }
+
+        // Toggle line numbers
+        function toggleLineNumbers(enabled) {
+            saveSetting('showLineNumbers', enabled);
+        }
+
+        // Toggle word wrap
+        function toggleWordWrap(enabled) {
+            saveSetting('wordWrap', enabled);
+        }
+
+        // Terminal theme
+        function changeTerminalTheme(theme) {
+            saveSetting('terminalTheme', theme);
+            const terminal = document.querySelector('.workspace-terminal');
+            if (terminal) {
+                if (theme === 'green') {
+                    terminal.style.background = '#0a0a0a';
+                    terminal.style.color = '#00ff00';
+                } else if (theme === 'light') {
+                    terminal.style.background = '#f5f5f5';
+                    terminal.style.color = '#1e1e1e';
+                } else {
+                    terminal.style.background = '#1e1e1e';
+                    terminal.style.color = '#d4d4d4';
+                }
+            }
+        }
+
+        // Terminal font size
+        function changeTerminalFontSize(size) {
+            saveSetting('terminalFontSize', size);
+            document.querySelectorAll('.terminal-content, .terminal-input').forEach(el => {
+                el.style.fontSize = size + 'px';
+            });
+        }
+    </script>
+</body>
+  </html>
